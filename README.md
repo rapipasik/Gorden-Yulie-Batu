@@ -1,20 +1,30 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# 🪟 Sistem Informasi Company Profile - Gorden Yulie Batu
 
-# Run and deploy your AI Studio app
+Sistem Informasi *Company Profile* berbasis website untuk usaha **Gorden Yulie Batu** (Malang Raya). Website ini dirancang untuk menampilkan profil usaha, katalog produk interior (gorden, vitrase, roller blind, wallpaper), galeri portofolio pemasangan, serta fitur ulasan pelanggan secara modern dan responsif.
 
-This contains everything you need to run your app locally.
+---
 
-View your app in AI Studio: https://ai.studio/apps/eeb1a0ad-beb7-4e93-a155-2b6c842672b2
+## 🚀 Teknologi yang Digunakan
 
-## Run Locally
+### **Backend**
+* **Framework:** Laravel 11.x (PHP >= 8.2)
+* **Arsitektur:** Blade Templating Engine (Clean & Reusable Components)
 
-**Prerequisites:**  Node.js
+### **Frontend**
+* **Framework CSS:** Bootstrap v5.3
+* **Ikon:** FontAwesome v6.5
+* **Desain & Gaya:** HTML5, CSS3 Native, & JavaScript Native
 
+---
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 📂 Struktur Halaman Utama (Progres Slicing)
+1. **Beranda (Home):** Hero Banner, Ringkasan Profil, Katalog & Portofolio Pilihan, Slider Testimoni.
+2. **Tentang Kami (About Us):** Detail latar belakang usaha dan keunggulan layanan.
+3. **Katalog (Catalog Grid):** Fitur filter kategori produk interior.
+4. **Detail Katalog (Single Catalog):** Spesifikasi produk, detail bahan, ulasan, dan FAQ Accordion.
+5. **Portofolio (Portfolio Grid):** Dokumentasi hasil pemasangan proyek gorden.
+6. **Detail Portofolio (Single Portfolio):** Galeri foto proyek dan dokumentasi pengerjaan.
+7. **Testimoni (Testimonial):** Halaman khusus ulasan kepuasan pelanggan.
+8. **Hubungi Kami (Contact Us):** Form pesan, tombol WhatsApp instan, dan integrasi Google Maps lokasi toko.
+
+---
