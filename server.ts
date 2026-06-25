@@ -9,6 +9,7 @@ interface DBData {
   products: any[];
   projects: any[];
   testimonials: any[];
+  siteImages?: Record<string, string>;
 }
 
 const DEFAULT_DB: DBData = {
@@ -144,7 +145,19 @@ const DEFAULT_DB: DBData = {
       avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120",
       image: "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=600"
     }
-  ]
+  ],
+  siteImages: {
+    logo: "/assets/images/logo.png",
+    berandaHeroBg: "/assets/images/curtains_hero_bg_1782007616516.jpg",
+    berandaContentImg: "/assets/images/curtains_minimal_interior_1782007633904.jpg",
+    berandaBeforeImg: "https://picsum.photos/seed/barewindow/1200/900?blur=1",
+    tentangKamiHeroBg: "/assets/images/curtains_hero_bg_1782007616516.jpg",
+    tentangKamiContentImg: "/assets/images/curtains_minimal_interior_1782007633904.jpg",
+    katalogHeroBg: "/assets/images/curtains_hero_bg_1782007616516.jpg",
+    portofolioHeroBg: "/assets/images/curtains_hero_bg_1782007616516.jpg",
+    testimoniHeroBg: "/assets/images/curtains_hero_bg_1782007616516.jpg",
+    hubungiKamiHeroBg: "/assets/images/curtains_hero_bg_1782007616516.jpg"
+  }
 };
 
 function readDb(): DBData {
@@ -158,7 +171,26 @@ function readDb(): DBData {
       return DEFAULT_DB;
     }
     const content = fs.readFileSync(DB_FILE, "utf8");
-    return JSON.parse(content);
+    const db = JSON.parse(content);
+    // Auto-fill missing fields if any
+    let updated = false;
+    if (!db.siteImages) {
+      db.siteImages = DEFAULT_DB.siteImages;
+      updated = true;
+    } else {
+      // In case we added any specific default images later, fill them in too
+      const defaults = DEFAULT_DB.siteImages || {};
+      for (const key of Object.keys(defaults)) {
+        if (!db.siteImages[key]) {
+          db.siteImages[key] = defaults[key];
+          updated = true;
+        }
+      }
+    }
+    if (updated) {
+      fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), "utf8");
+    }
+    return db;
   } catch (e) {
     console.error("Error reading database file, returning defaults:", e);
     return DEFAULT_DB;
@@ -326,6 +358,19 @@ async function startServer() {
       return res.json({ success: true, message: "Testimoni berhasil dihapus" });
     }
     res.status(404).json({ success: false, message: "Testimoni tidak ditemukan" });
+  });
+
+  // 5. API: SITE IMAGES
+  app.get("/api/site-images", (req, res) => {
+    const db = readDb();
+    res.json(db.siteImages || DEFAULT_DB.siteImages);
+  });
+
+  app.post("/api/site-images", (req, res) => {
+    const db = readDb();
+    db.siteImages = { ...(db.siteImages || DEFAULT_DB.siteImages), ...req.body };
+    writeDb(db);
+    res.json({ success: true, siteImages: db.siteImages });
   });
 
 

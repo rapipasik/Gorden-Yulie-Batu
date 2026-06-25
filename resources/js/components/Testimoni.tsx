@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Review } from '../types';
+import { Review, SiteImages } from '../types';
 import { Star, Quote, PenTool, CheckCircle, User, Sparkles, Camera, Upload, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -38,9 +38,10 @@ const INITIAL_REVIEWS: Review[] = [
 
 interface TestimoniProps {
   setActiveTab?: (tab: string) => void;
+  siteImages?: SiteImages;
 }
 
-export default function Testimoni({ setActiveTab }: TestimoniProps) {
+export default function Testimoni({ setActiveTab, siteImages }: TestimoniProps) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
@@ -201,6 +202,8 @@ export default function Testimoni({ setActiveTab }: TestimoniProps) {
     ? Number((reviews.reduce((acc, curr) => acc + curr.rating, 0) / reviews.length).toFixed(1))
     : 5.0;
 
+  const heroBg = siteImages?.testimoniHeroBg || '/assets/images/curtains_hero_bg_1782007616516.jpg';
+
   return (
     <div id="testimoni-page" className="bg-gray-50 min-h-screen">
       
@@ -208,7 +211,7 @@ export default function Testimoni({ setActiveTab }: TestimoniProps) {
       <div 
         id="testimoni-hero"
         className="relative h-[320px] md:h-[380px] bg-cover bg-center flex items-center pt-16"
-        style={{ backgroundImage: `linear-gradient(to bottom, rgba(29, 44, 34, 0.65), rgba(29, 44, 34, 0.5)), url('/assets/images/curtains_hero_bg_1782007616516.jpg')` }}
+        style={{ backgroundImage: `linear-gradient(to bottom, rgba(29, 44, 34, 0.65), rgba(29, 44, 34, 0.5)), url(${heroBg})` }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-white">
           <motion.div 

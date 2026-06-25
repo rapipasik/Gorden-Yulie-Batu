@@ -33,3 +33,16 @@ export interface Review {
   avatar?: string;
   image?: string;
 }
+
+export interface SiteImages {
+  logo: string;
+  berandaHeroBg: string;
+  berandaContentImg: string;
+  berandaBeforeImg: string;
+  tentangKamiHeroBg: string;
+  tentangKamiContentImg: string;
+  katalogHeroBg: string;
+  portofolioHeroBg: string;
+  testimoniHeroBg: string;
+  hubungiKamiHeroBg: string;
+}

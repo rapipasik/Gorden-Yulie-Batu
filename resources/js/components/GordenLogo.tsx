@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface GordenLogoProps {
   className?: string;
@@ -7,6 +7,26 @@ interface GordenLogoProps {
 
 export default function GordenLogo({ className = '', size = 80 }: GordenLogoProps) {
   const [imgFailed, setImgFailed] = useState(false);
+  const [logoUrl, setLogoUrl] = useState('/assets/images/logo.png');
+
+  useEffect(() => {
+    const updateLogo = () => {
+      const stored = localStorage.getItem('yulie_site_images');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed.logo) {
+            setLogoUrl(parsed.logo);
+            setImgFailed(false); // Reset error state on new logo URL
+          }
+        } catch (e) {}
+      }
+    };
+
+    updateLogo();
+    window.addEventListener('yulie_site_images_updated', updateLogo);
+    return () => window.removeEventListener('yulie_site_images_updated', updateLogo);
+  }, []);
 
   return (
     <div 
@@ -16,7 +36,7 @@ export default function GordenLogo({ className = '', size = 80 }: GordenLogoProp
     >
       {!imgFailed ? (
         <img
-          src="/assets/images/logo.png"
+          src={logoUrl}
           alt="Gorden Yulie Batu"
           className="w-full h-full object-cover p-1"
           onError={() => setImgFailed(true)}

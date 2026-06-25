@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Eye, X } from 'lucide-react';
-import { Product } from '../types';
+import { Product, SiteImages } from '../types';
 import { getStoredProducts } from '../utils/storage';
 
 const CATEGORY_ITEMS = [
@@ -13,7 +13,12 @@ const CATEGORY_ITEMS = [
   { id: 'kitchen_set', label: 'Kitchen Set' }
 ];
 
-export default function Katalog() {
+interface KatalogProps {
+  setActiveTab?: (tab: string) => void;
+  siteImages?: SiteImages;
+}
+
+export default function Katalog({ setActiveTab, siteImages }: KatalogProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('semua');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>(() => getStoredProducts());
@@ -47,26 +52,42 @@ export default function Katalog() {
     window.open(`https://wa.me/6281233965303?text=${encoded}`, '_blank');
   };
 
+  const heroBg = siteImages?.katalogHeroBg || '/assets/images/curtains_hero_bg_1782007616516.jpg';
+
   return (
     <div id="katalog-tab-root" className="bg-white min-h-screen text-gray-800">
       
-      {/* 1. Hero Page Header */}
+      {/* 1. Hero Page Header - Aligned with Tentang Kami layout */}
       <div 
         id="katalog-hero-banner" 
-        className="relative h-[250px] sm:h-[300px] bg-cover bg-center flex flex-col justify-center items-center text-center px-4"
+        className="relative h-[380px] md:h-[450px] bg-cover bg-center flex items-center pt-20"
         style={{ 
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('/assets/images/curtains_hero_bg_1782007616516.jpg')` 
+          backgroundImage: `linear-gradient(to bottom, rgba(29, 44, 34, 0.6), rgba(29, 44, 34, 0.45)), url(${heroBg})` 
         }}
       >
-        <div className="max-w-4xl mx-auto space-y-2">
-          <h1 className="text-white text-4xl sm:text-5xl font-bold tracking-tight">
-            Catalog
-          </h1>
-          <nav className="text-white/80 text-xs sm:text-sm font-medium tracking-wide">
-            <span>Home</span>
-            <span className="mx-2 font-mono">&raquo;</span>
-            <span className="text-white">Catalog</span>
-          </nav>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-white">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="space-y-4"
+          >
+            <h1 className="text-4xl md:text-5xl font-bold font-serif tracking-tight">
+              Katalog Produk
+            </h1>
+            
+            {/* Breadcrumb - Aligned & Functional */}
+            <div className="flex items-center space-x-2 text-sm text-white/80 font-medium">
+              <button 
+                onClick={() => { if (setActiveTab) { setActiveTab('beranda'); window.scrollTo(0,0); } }}
+                className="hover:text-gold-accent hover:underline cursor-pointer transition-colors"
+              >
+                Beranda
+              </button>
+              <span className="text-white/60">&gt;</span>
+              <span className="text-gold-accent font-semibold">Katalog</span>
+            </div>
+          </motion.div>
         </div>
       </div>
 

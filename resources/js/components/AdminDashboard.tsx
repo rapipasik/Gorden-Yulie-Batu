@@ -8,7 +8,7 @@ import {
   saveStoredProject, 
   deleteStoredProject 
 } from '../utils/storage';
-import { Product, Project } from '../types';
+import { Product, Project, SiteImages } from '../types';
 import { 
   LayoutDashboard, 
   ShoppingBag, 
@@ -29,10 +29,88 @@ import {
   Upload
 } from 'lucide-react';
 
-export default function AdminDashboard() {
+interface AdminDashboardProps {
+  siteImages?: SiteImages;
+  onUpdateImages?: (updated: Partial<SiteImages>) => void;
+}
+
+export default function AdminDashboard({ siteImages, onUpdateImages }: AdminDashboardProps) {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
     return localStorage.getItem('yulie_admin_logged') === 'true';
   });
+
+  // Form input states (Site Images Settings)
+  const [imgLogo, setImgLogo] = useState(siteImages?.logo || '/assets/images/logo.png');
+  const [imgBerandaHeroBg, setImgBerandaHeroBg] = useState(siteImages?.berandaHeroBg || '');
+  const [imgBerandaContentImg, setImgBerandaContentImg] = useState(siteImages?.berandaContentImg || '');
+  const [imgBerandaBeforeImg, setImgBerandaBeforeImg] = useState(siteImages?.berandaBeforeImg || '');
+  const [imgTentangKamiHeroBg, setImgTentangKamiHeroBg] = useState(siteImages?.tentangKamiHeroBg || '');
+  const [imgTentangKamiContentImg, setImgTentangKamiContentImg] = useState(siteImages?.tentangKamiContentImg || '');
+  const [imgKatalogHeroBg, setImgKatalogHeroBg] = useState(siteImages?.katalogHeroBg || '');
+  const [imgPortofolioHeroBg, setImgPortofolioHeroBg] = useState(siteImages?.portofolioHeroBg || '');
+  const [imgTestimoniHeroBg, setImgTestimoniHeroBg] = useState(siteImages?.testimoniHeroBg || '');
+  const [imgHubungiKamiHeroBg, setImgHubungiKamiHeroBg] = useState(siteImages?.hubungiKamiHeroBg || '');
+  const [isSavingImages, setIsSavingImages] = useState(false);
+
+  useEffect(() => {
+    if (siteImages) {
+      setImgLogo(siteImages.logo || '/assets/images/logo.png');
+      setImgBerandaHeroBg(siteImages.berandaHeroBg || '');
+      setImgBerandaContentImg(siteImages.berandaContentImg || '');
+      setImgBerandaBeforeImg(siteImages.berandaBeforeImg || '');
+      setImgTentangKamiHeroBg(siteImages.tentangKamiHeroBg || '');
+      setImgTentangKamiContentImg(siteImages.tentangKamiContentImg || '');
+      setImgKatalogHeroBg(siteImages.katalogHeroBg || '');
+      setImgPortofolioHeroBg(siteImages.portofolioHeroBg || '');
+      setImgTestimoniHeroBg(siteImages.testimoniHeroBg || '');
+      setImgHubungiKamiHeroBg(siteImages.hubungiKamiHeroBg || '');
+    }
+  }, [siteImages]);
+
+  const handleSaveSiteImages = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingImages(true);
+
+    const updatedData = {
+      logo: imgLogo,
+      berandaHeroBg: imgBerandaHeroBg,
+      berandaContentImg: imgBerandaContentImg,
+      berandaBeforeImg: imgBerandaBeforeImg,
+      tentangKamiHeroBg: imgTentangKamiHeroBg,
+      tentangKamiContentImg: imgTentangKamiContentImg,
+      katalogHeroBg: imgKatalogHeroBg,
+      portofolioHeroBg: imgPortofolioHeroBg,
+      testimoniHeroBg: imgTestimoniHeroBg,
+      hubungiKamiHeroBg: imgHubungiKamiHeroBg
+    };
+
+    fetch('/api/site-images', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify(updatedData)
+    })
+      .then(res => res.json())
+      .then(data => {
+        setIsSavingImages(false);
+        if (data.success) {
+          if (onUpdateImages) {
+            onUpdateImages(updatedData);
+          }
+          setNotification('Gambar website berhasil diperbarui secara real-time!');
+          setTimeout(() => setNotification(null), 3000);
+        } else {
+          alert('Gagal memperbarui konfigurasi gambar.');
+        }
+      })
+      .catch(err => {
+        setIsSavingImages(false);
+        console.error(err);
+        alert('Terjadi kesalahan jaringan.');
+      });
+  };
   
   // Login form states
   const [email, setEmail] = useState('');
@@ -44,8 +122,8 @@ export default function AdminDashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   
-  // Dashboard navigation tab: 'products' | 'projects' | 'testimonials'
-  const [activeSubTab, setActiveSubTab] = useState<'products' | 'projects' | 'testimonials'>('products');
+  // Dashboard navigation tab: 'products' | 'projects' | 'testimonials' | 'images'
+  const [activeSubTab, setActiveSubTab] = useState<'products' | 'projects' | 'testimonials' | 'images'>('products');
   
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
@@ -673,12 +751,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="bg-amber-500/5 rounded-xl border border-amber-500/10 p-3 text-amber-500/95 text-xs font-medium space-y-1">
-                <p className="font-bold uppercase tracking-wider text-[10px]">Petunjuk Login:</p>
-                <p>Email: <span className="font-mono bg-amber-500/10 px-1 rounded">admin@yuliegordenbatu.com</span></p>
-                <p>Sandi: <span className="font-mono bg-amber-500/10 px-1 rounded">password</span></p>
-              </div>
-
               <div>
                 <button
                   type="submit"
@@ -806,7 +878,7 @@ export default function AdminDashboard() {
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 mb-8 flex flex-col xl:flex-row gap-4 justify-between items-center">
           
           {/* Sub-Tabs Selector */}
-          <div className="flex bg-slate-950 p-1.5 rounded-xl border border-slate-800 w-full xl:w-auto">
+          <div className="flex flex-wrap bg-slate-950 p-1.5 rounded-xl border border-slate-800 w-full xl:w-auto gap-1">
             <button
               onClick={() => { setActiveSubTab('products'); setSearchQuery(''); }}
               className={`flex-1 xl:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-bold tracking-wider uppercase transition-all cursor-pointer ${
@@ -837,58 +909,70 @@ export default function AdminDashboard() {
             >
               <MessageSquare className="w-4 h-4" /> Testimoni
             </button>
+            <button
+              onClick={() => { setActiveSubTab('images'); setSearchQuery(''); }}
+              className={`flex-1 xl:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-bold tracking-wider uppercase transition-all cursor-pointer ${
+                activeSubTab === 'images'
+                  ? 'bg-amber-500 text-slate-950 shadow-md'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <Camera className="w-4 h-4" /> Kelola Gambar
+            </button>
           </div>
 
           {/* Search, Filter, Add Action */}
-          <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto items-stretch sm:items-center">
-            
-            {/* Search Input */}
-            <div className="relative flex-1 sm:w-60">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-              <input
-                type="text"
-                placeholder={activeSubTab === 'products' ? "Cari produk..." : activeSubTab === 'projects' ? "Cari proyek..." : "Cari ulasan..."}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-955 border border-slate-800 pl-9 pr-3 py-2.5 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-100"
-              />
+          {activeSubTab !== 'images' && (
+            <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto items-stretch sm:items-center">
+              
+              {/* Search Input */}
+              <div className="relative flex-1 sm:w-60">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <input
+                  type="text"
+                  placeholder={activeSubTab === 'products' ? "Cari produk..." : activeSubTab === 'projects' ? "Cari proyek..." : "Cari ulasan..."}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-slate-955 border border-slate-800 pl-9 pr-3 py-2.5 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-100"
+                />
+              </div>
+
+              {/* Category Filter */}
+              {activeSubTab === 'products' ? (
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className="bg-slate-955 border border-slate-800 text-xs rounded-xl py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-300"
+                >
+                  <option value="all">Semua Kategori</option>
+                  <option value="gorden">Gorden</option>
+                  <option value="vitrase">Vitrase</option>
+                  <option value="roller_blind">Roller Blind</option>
+                  <option value="wallpaper">Wallpaper</option>
+                  <option value="kitchen_set">Kitchen Set</option>
+                </select>
+              ) : activeSubTab === 'projects' ? (
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className="bg-slate-955 border border-slate-800 text-xs rounded-xl py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-300"
+                >
+                  <option value="all">Semua Proyek</option>
+                  <option value="villa">Villa</option>
+                  <option value="residensial">Residensial</option>
+                  <option value="komersial">Komersial</option>
+                </select>
+              ) : null}
+
+              {/* Add Button */}
+              <button
+                onClick={activeSubTab === 'products' ? openAddProductModal : activeSubTab === 'projects' ? openAddProjectModal : openAddTestimonialModal}
+                className="flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold tracking-wider uppercase px-5 py-3 rounded-xl transition-all font-sans transform hover:-translate-y-0.5 cursor-pointer"
+              >
+                <Plus className="w-4 h-4 bg-slate-950 text-amber-500 rounded-full p-0.5" /> Tambah Baru
+              </button>
             </div>
-
-            {/* Category Filter */}
-            {activeSubTab === 'products' ? (
-              <select
-                value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="bg-slate-955 border border-slate-800 text-xs rounded-xl py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-300"
-              >
-                <option value="all">Semua Kategori</option>
-                <option value="gorden">Gorden</option>
-                <option value="vitrase">Vitrase</option>
-                <option value="roller_blind">Roller Blind</option>
-                <option value="wallpaper">Wallpaper</option>
-                <option value="kitchen_set">Kitchen Set</option>
-              </select>
-            ) : activeSubTab === 'projects' ? (
-              <select
-                value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                className="bg-slate-955 border border-slate-800 text-xs rounded-xl py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-300"
-              >
-                <option value="all">Semua Proyek</option>
-                <option value="villa">Villa</option>
-                <option value="residensial">Residensial</option>
-                <option value="komersial">Komersial</option>
-              </select>
-            ) : null}
-
-            {/* Add Button */}
-            <button
-              onClick={activeSubTab === 'products' ? openAddProductModal : activeSubTab === 'projects' ? openAddProjectModal : openAddTestimonialModal}
-              className="flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold tracking-wider uppercase px-5 py-3 rounded-xl transition-all font-sans transform hover:-translate-y-0.5 cursor-pointer"
-            >
-              <Plus className="w-4 h-4 bg-slate-950 text-amber-500 rounded-full p-0.5" /> Tambah Baru
-            </button>
-          </div>
+          )}
         </div>
 
         {/* CORE DATA TABLES */}
@@ -1032,7 +1116,7 @@ export default function AdminDashboard() {
                 </tbody>
               </table>
             </div>
-          ) : (
+          ) : activeSubTab === 'testimonials' ? (
             /* TESTIMONIALS LISTING TABLE */
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -1089,6 +1173,291 @@ export default function AdminDashboard() {
                   )}
                 </tbody>
               </table>
+            </div>
+          ) : (
+            /* IMAGES MANAGEMENT CONFIGURATION FORM */
+            <div className="p-6 sm:p-8 text-gray-200" id="manage-images-container">
+              <div className="border-b border-slate-800 pb-5 mb-6">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Camera className="w-5 h-5 text-amber-500" /> Kelola Gambar Website secara Dinamis
+                </h3>
+                <p className="text-xs text-gray-400 mt-1">
+                  Atur semua gambar pada halaman website Anda secara langsung tanpa perlu menyentuh kode program. Masukkan link gambar (Unsplash, local URL, dll) dan klik "Simpan Konfigurasi" untuk langsung menerapkan perubahan.
+                </p>
+              </div>
+
+              <form onSubmit={handleSaveSiteImages} className="space-y-8">
+                
+                {/* SECTION 1: LOGO & IDENTITAS */}
+                <div className="space-y-4 bg-slate-950/40 p-5 rounded-2xl border border-slate-800/60">
+                  <h4 className="text-sm font-bold text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Logo & Identitas Website
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                    <div className="md:col-span-8 space-y-2">
+                      <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider">
+                        URL Logo Utama
+                      </label>
+                      <input
+                        type="text"
+                        value={imgLogo}
+                        onChange={(e) => setImgLogo(e.target.value)}
+                        placeholder="/assets/images/logo.png"
+                        className="w-full bg-slate-900 border border-slate-800 px-3 py-2.5 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-100 font-mono"
+                      />
+                      <p className="text-[10px] text-gray-400">
+                        Rekomendasi ukuran: 160x160 px dengan format background transparan (.png).
+                      </p>
+                    </div>
+                    <div className="md:col-span-4 flex justify-center">
+                      <div className="w-20 h-20 rounded-full bg-white p-2 flex items-center justify-center shadow-lg border border-slate-800 overflow-hidden">
+                        <img src={imgLogo || '/assets/images/logo.png'} alt="Logo Preview" className="max-w-full max-h-full object-contain" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).src = '/assets/images/logo.png' }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* SECTION 2: HALAMAN BERANDA */}
+                <div className="space-y-6 bg-slate-950/40 p-5 rounded-2xl border border-slate-800/60">
+                  <h4 className="text-sm font-bold text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Halaman Beranda (Beranda)
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Beranda Hero Background */}
+                    <div className="space-y-3">
+                      <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider">
+                        Hero Background Banner
+                      </label>
+                      <div className="flex gap-4 items-center">
+                        <div className="w-24 h-16 rounded-xl bg-slate-900 overflow-hidden border border-slate-800 shrink-0">
+                          <img src={imgBerandaHeroBg || '/assets/images/curtains_hero_bg_1782007616516.jpg'} alt="Hero Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <input
+                            type="text"
+                            value={imgBerandaHeroBg}
+                            onChange={(e) => setImgBerandaHeroBg(e.target.value)}
+                            placeholder="/assets/images/curtains_hero_bg_1782007616516.jpg"
+                            className="w-full bg-slate-900 border border-slate-800 px-3 py-2 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-100 font-mono"
+                          />
+                          <p className="text-[10px] text-gray-400">Gambar background utama pada bagian paling atas (hero).</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Beranda Content Image */}
+                    <div className="space-y-3">
+                      <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider">
+                        Gambar Profil / Pengenalan
+                      </label>
+                      <div className="flex gap-4 items-center">
+                        <div className="w-24 h-16 rounded-xl bg-slate-900 overflow-hidden border border-slate-800 shrink-0">
+                          <img src={imgBerandaContentImg || '/assets/images/curtains_minimal_interior_1782007633904.jpg'} alt="Intro Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <input
+                            type="text"
+                            value={imgBerandaContentImg}
+                            onChange={(e) => setImgBerandaContentImg(e.target.value)}
+                            placeholder="/assets/images/curtains_minimal_interior_1782007633904.jpg"
+                            className="w-full bg-slate-900 border border-slate-800 px-3 py-2 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-100 font-mono"
+                          />
+                          <p className="text-[10px] text-gray-400">Gambar pengenalan produk di bagian bawah hero banner.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Before Image for Slider */}
+                    <div className="space-y-3 lg:col-span-2 border-t border-slate-800/50 pt-4">
+                      <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider">
+                        Gambar Jendela Kosong (Kiri Slider Sebelum Gorden)
+                      </label>
+                      <div className="flex gap-4 items-center">
+                        <div className="w-24 h-16 rounded-xl bg-slate-900 overflow-hidden border border-slate-800 shrink-0">
+                          <img src={imgBerandaBeforeImg || 'https://picsum.photos/seed/barewindow/1200/900?blur=1'} alt="Before Slider Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <input
+                            type="text"
+                            value={imgBerandaBeforeImg}
+                            onChange={(e) => setImgBerandaBeforeImg(e.target.value)}
+                            placeholder="https://picsum.photos/seed/barewindow/1200/900?blur=1"
+                            className="w-full bg-slate-900 border border-slate-800 px-3 py-2 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-100 font-mono"
+                          />
+                          <p className="text-[10px] text-gray-400">Gambar yang digunakan di sisi kiri slider perbandingan "Sebelum Pasang Gorden".</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* SECTION 3: HALAMAN TENTANG KAMI */}
+                <div className="space-y-6 bg-slate-950/40 p-5 rounded-2xl border border-slate-800/60">
+                  <h4 className="text-sm font-bold text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Halaman Tentang Kami (Tentang Kami)
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Tentang Kami Hero Background */}
+                    <div className="space-y-3">
+                      <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider">
+                        Hero Background Banner
+                      </label>
+                      <div className="flex gap-4 items-center">
+                        <div className="w-24 h-16 rounded-xl bg-slate-900 overflow-hidden border border-slate-800 shrink-0">
+                          <img src={imgTentangKamiHeroBg || '/assets/images/curtains_hero_bg_1782007616516.jpg'} alt="About Hero Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <input
+                            type="text"
+                            value={imgTentangKamiHeroBg}
+                            onChange={(e) => setImgTentangKamiHeroBg(e.target.value)}
+                            placeholder="/assets/images/curtains_hero_bg_1782007616516.jpg"
+                            className="w-full bg-slate-900 border border-slate-800 px-3 py-2 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-100 font-mono"
+                          />
+                          <p className="text-[10px] text-gray-400">Background banner atas untuk halaman "Tentang Kami".</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tentang Kami Content Image */}
+                    <div className="space-y-3">
+                      <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider">
+                        Gambar Profil Sejarah
+                      </label>
+                      <div className="flex gap-4 items-center">
+                        <div className="w-24 h-16 rounded-xl bg-slate-900 overflow-hidden border border-slate-800 shrink-0">
+                          <img src={imgTentangKamiContentImg || '/assets/images/curtains_minimal_interior_1782007633904.jpg'} alt="About Content Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <input
+                            type="text"
+                            value={imgTentangKamiContentImg}
+                            onChange={(e) => setImgTentangKamiContentImg(e.target.value)}
+                            placeholder="/assets/images/curtains_minimal_interior_1782007633904.jpg"
+                            className="w-full bg-slate-900 border border-slate-800 px-3 py-2 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-100 font-mono"
+                          />
+                          <p className="text-[10px] text-gray-400">Gambar di samping teks deskripsi sejarah usaha.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* SECTION 4: BANNER BANNER HALAMAN LAINNYA */}
+                <div className="space-y-6 bg-slate-950/40 p-5 rounded-2xl border border-slate-800/60">
+                  <h4 className="text-sm font-bold text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Banner Hero Halaman Lainnya
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Katalog Hero Background */}
+                    <div className="space-y-3">
+                      <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider">
+                        Banner Katalog
+                      </label>
+                      <div className="flex gap-4 items-center">
+                        <div className="w-24 h-16 rounded-xl bg-slate-900 overflow-hidden border border-slate-800 shrink-0">
+                          <img src={imgKatalogHeroBg || '/assets/images/curtains_hero_bg_1782007616516.jpg'} alt="Catalog Hero Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <input
+                            type="text"
+                            value={imgKatalogHeroBg}
+                            onChange={(e) => setImgKatalogHeroBg(e.target.value)}
+                            placeholder="/assets/images/curtains_hero_bg_1782007616516.jpg"
+                            className="w-full bg-slate-900 border border-slate-800 px-3 py-2 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-100 font-mono"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Portofolio Hero Background */}
+                    <div className="space-y-3">
+                      <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider">
+                        Banner Portofolio
+                      </label>
+                      <div className="flex gap-4 items-center">
+                        <div className="w-24 h-16 rounded-xl bg-slate-900 overflow-hidden border border-slate-800 shrink-0">
+                          <img src={imgPortofolioHeroBg || '/assets/images/curtains_hero_bg_1782007616516.jpg'} alt="Portfolio Hero Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <input
+                            type="text"
+                            value={imgPortofolioHeroBg}
+                            onChange={(e) => setImgPortofolioHeroBg(e.target.value)}
+                            placeholder="/assets/images/curtains_hero_bg_1782007616516.jpg"
+                            className="w-full bg-slate-900 border border-slate-800 px-3 py-2 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-100 font-mono"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Testimoni Hero Background */}
+                    <div className="space-y-3">
+                      <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider">
+                        Banner Testimoni
+                      </label>
+                      <div className="flex gap-4 items-center">
+                        <div className="w-24 h-16 rounded-xl bg-slate-900 overflow-hidden border border-slate-800 shrink-0">
+                          <img src={imgTestimoniHeroBg || '/assets/images/curtains_hero_bg_1782007616516.jpg'} alt="Testimoni Hero Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <input
+                            type="text"
+                            value={imgTestimoniHeroBg}
+                            onChange={(e) => setImgTestimoniHeroBg(e.target.value)}
+                            placeholder="/assets/images/curtains_hero_bg_1782007616516.jpg"
+                            className="w-full bg-slate-900 border border-slate-800 px-3 py-2 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-100 font-mono"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Hubungi Kami Hero Background */}
+                    <div className="space-y-3">
+                      <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider">
+                        Banner Hubungi Kami
+                      </label>
+                      <div className="flex gap-4 items-center">
+                        <div className="w-24 h-16 rounded-xl bg-slate-900 overflow-hidden border border-slate-800 shrink-0">
+                          <img src={imgHubungiKamiHeroBg || '/assets/images/curtains_hero_bg_1782007616516.jpg'} alt="Contact Hero Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <input
+                            type="text"
+                            value={imgHubungiKamiHeroBg}
+                            onChange={(e) => setImgHubungiKamiHeroBg(e.target.value)}
+                            placeholder="/assets/images/curtains_hero_bg_1782007616516.jpg"
+                            className="w-full bg-slate-900 border border-slate-800 px-3 py-2 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-gray-100 font-mono"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ACTION SUBMIT BUTTON */}
+                <div className="flex justify-end pt-4 border-t border-slate-800">
+                  <button
+                    type="submit"
+                    disabled={isSavingImages}
+                    className="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-400 disabled:bg-amber-500/50 text-slate-950 px-8 py-3.5 rounded-xl text-sm font-extrabold tracking-wider uppercase transition-all shadow-lg shadow-amber-500/10 cursor-pointer disabled:cursor-not-allowed hover:-translate-y-0.5"
+                  >
+                    {isSavingImages ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+                        Menyimpan...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4 stroke-[3px]" /> Simpan Semua Konfigurasi Gambar
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           )}
         </section>

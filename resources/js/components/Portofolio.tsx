@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Project } from '../types';
+import { Project, SiteImages } from '../types';
 import { MapPin, Calendar, Compass, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getStoredProjects } from '../utils/storage';
 
 interface PortofolioProps {
   setActiveTab?: (tab: string) => void;
+  siteImages?: SiteImages;
 }
 
-export default function Portofolio({ setActiveTab }: PortofolioProps) {
+export default function Portofolio({ setActiveTab, siteImages }: PortofolioProps) {
   const [filter, setFilter] = useState<string>('all');
   const [selectedProj, setSelectedProj] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>(() => getStoredProjects());
@@ -29,6 +30,8 @@ export default function Portofolio({ setActiveTab }: PortofolioProps) {
     ? projects
     : projects.filter(p => p.category === filter);
 
+  const heroBg = siteImages?.portofolioHeroBg || '/assets/images/curtains_hero_bg_1782007616516.jpg';
+
   return (
     <div id="portofolio-page" className="bg-gray-50 min-h-screen">
       
@@ -36,7 +39,7 @@ export default function Portofolio({ setActiveTab }: PortofolioProps) {
       <div 
         id="portofolio-hero"
         className="relative h-[320px] md:h-[380px] bg-cover bg-center flex items-center pt-16"
-        style={{ backgroundImage: `linear-gradient(to bottom, rgba(29, 44, 34, 0.65), rgba(29, 44, 34, 0.5)), url('/assets/images/curtains_hero_bg_1782007616516.jpg')` }}
+        style={{ backgroundImage: `linear-gradient(to bottom, rgba(29, 44, 34, 0.65), rgba(29, 44, 34, 0.5)), url(${heroBg})` }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-white">
           <motion.div 

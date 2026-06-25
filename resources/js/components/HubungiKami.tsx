@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Phone, Mail, MapPin, Clock, Send, MessageSquare, Plus, Minus, CheckCircle, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { SiteImages } from '../types';
 
 interface FaqItem {
   question: string;
@@ -28,9 +29,10 @@ const FAQS: FaqItem[] = [
 
 interface HubungiKamiProps {
   setActiveTab?: (tab: string) => void;
+  siteImages?: SiteImages;
 }
 
-export default function HubungiKami({ setActiveTab }: HubungiKamiProps) {
+export default function HubungiKami({ setActiveTab, siteImages }: HubungiKamiProps) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [interest, setInterest] = useState('gorden_minimalis');
@@ -72,6 +74,8 @@ export default function HubungiKami({ setActiveTab }: HubungiKamiProps) {
     setOpenFaq(openFaq === index ? null : index);
   };
 
+  const heroBg = siteImages?.hubungiKamiHeroBg || '/assets/images/curtains_hero_bg_1782007616516.jpg';
+
   return (
     <div id="hubungi-kami-page" className="bg-gray-50 min-h-screen">
       
@@ -79,7 +83,7 @@ export default function HubungiKami({ setActiveTab }: HubungiKamiProps) {
       <div 
         id="hubungi-kami-hero"
         className="relative h-[320px] md:h-[380px] bg-cover bg-center flex items-center pt-16"
-        style={{ backgroundImage: `linear-gradient(to bottom, rgba(29, 44, 34, 0.65), rgba(29, 44, 34, 0.5)), url('/assets/images/curtains_hero_bg_1782007616516.jpg')` }}
+        style={{ backgroundImage: `linear-gradient(to bottom, rgba(29, 44, 34, 0.65), rgba(29, 44, 34, 0.5)), url(${heroBg})` }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-white">
           <motion.div 

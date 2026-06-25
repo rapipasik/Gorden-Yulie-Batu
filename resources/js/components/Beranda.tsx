@@ -1,16 +1,21 @@
 import { useState } from 'react';
 import { ArrowRight, Sparkles, Home, Paintbrush, Sun, Info } from 'lucide-react';
 import { motion } from 'motion/react';
+import { SiteImages } from '../types';
 
 // Hotlinked/generated image paths
-const heroBg = '/assets/images/curtains_hero_bg_1782007616516.jpg';
-const contentImg = '/assets/images/curtains_minimal_interior_1782007633904.jpg';
+const fallbackHeroBg = '/assets/images/curtains_hero_bg_1782007616516.jpg';
+const fallbackContentImg = '/assets/images/curtains_minimal_interior_1782007633904.jpg';
 
 interface BerandaProps {
   setActiveTab: (tab: string) => void;
+  siteImages?: SiteImages;
 }
 
-export default function Beranda({ setActiveTab }: BerandaProps) {
+export default function Beranda({ setActiveTab, siteImages }: BerandaProps) {
+  const heroBg = siteImages?.berandaHeroBg || fallbackHeroBg;
+  const contentImg = siteImages?.berandaContentImg || fallbackContentImg;
+  const beforeImg = siteImages?.berandaBeforeImg || 'https://picsum.photos/seed/barewindow/1200/900?blur=1';
   // Before-After Slider State
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isSliding, setIsSliding] = useState(false);
@@ -327,7 +332,7 @@ export default function Beranda({ setActiveTab }: BerandaProps) {
                 {/* BEFORE IMAGE (Bare Wall / Minimal Filter) */}
                 <div className="absolute inset-0">
                   <img 
-                    src="https://picsum.photos/seed/barewindow/1200/900?blur=1" 
+                    src={beforeImg} 
                     alt="Sebelum Gorden" 
                     className="w-full h-full object-cover filter brightness-75 contrast-110"
                     referrerPolicy="no-referrer"

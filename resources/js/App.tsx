@@ -10,6 +10,21 @@ import HubungiKami from './components/HubungiKami';
 import AdminDashboard from './components/AdminDashboard';
 import { motion, AnimatePresence } from 'motion/react';
 
+import { SiteImages } from './types';
+
+const DEFAULT_SITE_IMAGES: SiteImages = {
+  logo: '/assets/images/logo.png',
+  berandaHeroBg: '/assets/images/curtains_hero_bg_1782007616516.jpg',
+  berandaContentImg: '/assets/images/curtains_minimal_interior_1782007633904.jpg',
+  berandaBeforeImg: 'https://picsum.photos/seed/barewindow/1200/900?blur=1',
+  tentangKamiHeroBg: '/assets/images/curtains_hero_bg_1782007616516.jpg',
+  tentangKamiContentImg: '/assets/images/curtains_minimal_interior_1782007633904.jpg',
+  katalogHeroBg: '/assets/images/curtains_hero_bg_1782007616516.jpg',
+  portofolioHeroBg: '/assets/images/curtains_hero_bg_1782007616516.jpg',
+  testimoniHeroBg: '/assets/images/curtains_hero_bg_1782007616516.jpg',
+  hubungiKamiHeroBg: '/assets/images/curtains_hero_bg_1782007616516.jpg'
+};
+
 export default function App() {
   const [isAdmin, setIsAdmin] = useState<boolean>(() => {
     return window.location.pathname === '/admin' || window.location.hash === '#/admin' || window.location.pathname.startsWith('/admin');
@@ -21,6 +36,45 @@ export default function App() {
     const hash = window.location.hash.replace('#/', '').replace('#', '');
     return validTabs.includes(hash) ? hash : 'beranda';
   });
+
+  const [siteImages, setSiteImages] = useState<SiteImages>(() => {
+    const stored = localStorage.getItem('yulie_site_images');
+    if (stored) {
+      try {
+        return { ...DEFAULT_SITE_IMAGES, ...JSON.parse(stored) };
+      } catch (e) {
+        return DEFAULT_SITE_IMAGES;
+      }
+    }
+    return DEFAULT_SITE_IMAGES;
+  });
+
+  // Fetch site images on mount
+  useEffect(() => {
+    fetch('/api/site-images')
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch site images');
+        return res.json();
+      })
+      .then((data) => {
+        setSiteImages((prev) => {
+          const updated = { ...prev, ...data };
+          localStorage.setItem('yulie_site_images', JSON.stringify(updated));
+          window.dispatchEvent(new Event('yulie_site_images_updated'));
+          return updated;
+        });
+      })
+      .catch((err) => console.error('Error fetching site images:', err));
+  }, []);
+
+  const handleUpdateImages = (updated: Partial<SiteImages>) => {
+    setSiteImages((prev) => {
+      const nextImages = { ...prev, ...updated };
+      localStorage.setItem('yulie_site_images', JSON.stringify(nextImages));
+      window.dispatchEvent(new Event('yulie_site_images_updated'));
+      return nextImages;
+    });
+  };
 
   // Keep track of route changes or hash changes dynamically
   useEffect(() => {
@@ -83,26 +137,26 @@ export default function App() {
   }, [activeTab, isAdmin]);
 
   if (isAdmin) {
-    return <AdminDashboard />;
+    return <AdminDashboard siteImages={siteImages} onUpdateImages={handleUpdateImages} />;
   }
 
   // Render active component based on selected state tab
   const renderContent = () => {
     switch (activeTab) {
       case 'beranda':
-        return <Beranda setActiveTab={setActiveTab} />;
+        return <Beranda setActiveTab={setActiveTab} siteImages={siteImages} />;
       case 'tentang-kami':
-        return <TentangKami setActiveTab={setActiveTab} />;
+        return <TentangKami setActiveTab={setActiveTab} siteImages={siteImages} />;
       case 'katalog':
-        return <Katalog />;
+        return <Katalog setActiveTab={setActiveTab} siteImages={siteImages} />;
       case 'portofolio':
-        return <Portofolio setActiveTab={setActiveTab} />;
+        return <Portofolio setActiveTab={setActiveTab} siteImages={siteImages} />;
       case 'testimoni':
-        return <Testimoni setActiveTab={setActiveTab} />;
+        return <Testimoni setActiveTab={setActiveTab} siteImages={siteImages} />;
       case 'hubungi-kami':
-        return <HubungiKami setActiveTab={setActiveTab} />;
+        return <HubungiKami setActiveTab={setActiveTab} siteImages={siteImages} />;
       default:
-        return <Beranda setActiveTab={setActiveTab} />;
+        return <Beranda setActiveTab={setActiveTab} siteImages={siteImages} />;
     }
   };
 

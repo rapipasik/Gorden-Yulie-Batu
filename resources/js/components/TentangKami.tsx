@@ -1,15 +1,19 @@
 import { Award, ShieldCheck, Banknote, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
+import { SiteImages } from '../types';
 
 // Hotlinked/generated image paths
-const heroBg = '/assets/images/curtains_hero_bg_1782007616516.jpg';
-const contentImg = '/assets/images/curtains_minimal_interior_1782007633904.jpg';
+const fallbackHeroBg = '/assets/images/curtains_hero_bg_1782007616516.jpg';
+const fallbackContentImg = '/assets/images/curtains_minimal_interior_1782007633904.jpg';
 
 interface TentangKamiProps {
   setActiveTab: (tab: string) => void;
+  siteImages?: SiteImages;
 }
 
-export default function TentangKami({ setActiveTab }: TentangKamiProps) {
+export default function TentangKami({ setActiveTab, siteImages }: TentangKamiProps) {
+  const heroBg = siteImages?.tentangKamiHeroBg || fallbackHeroBg;
+  const contentImg = siteImages?.tentangKamiContentImg || fallbackContentImg;
   return (
     <div id="tentang-kami-page" className="bg-white min-h-screen">
       
