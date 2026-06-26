@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rapipasik/gorden-yulie-batu:latest
+    container_name: gorden_yulie_app
+    restart: always
+    ports:
+      - "8000:80"
+    environment:
+      APP_NAME: "Gorden Yulie Batu"
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: http://localhost:8000
+      
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: gorden_yulie_db
+      DB_USERNAME: yulie_user
+      DB_PASSWORD: yulie_secure_password
+    volumes:
+      - app-storage:/var/www/html/storage/app
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: gorden_yulie_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: gorden_yulie_db
+      MYSQL_USER: yulie_user
+      MYSQL_PASSWORD: yulie_secure_password
+      MYSQL_ROOT_PASSWORD: yulie_root_secure_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+
+volumes:
+  mysql-data:
+    driver: local
+  app-storage:
+    driver: local

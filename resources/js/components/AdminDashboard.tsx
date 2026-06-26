@@ -751,6 +751,12 @@ export default function AdminDashboard({ siteImages, onUpdateImages }: AdminDash
                 </div>
               </div>
 
+              <div className="bg-amber-500/5 rounded-xl border border-amber-500/10 p-3 text-amber-500/95 text-xs font-medium space-y-1">
+                <p className="font-bold uppercase tracking-wider text-[10px]">Petunjuk Login:</p>
+                <p>Email: <span className="font-mono bg-amber-500/10 px-1 rounded">admin@yuliegordenbatu.com</span></p>
+                <p>Sandi: <span className="font-mono bg-amber-500/10 px-1 rounded">password</span></p>
+              </div>
+
               <div>
                 <button
                   type="submit"

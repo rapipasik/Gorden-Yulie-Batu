@@ -89,6 +89,23 @@
         "lebar": "Kustom Sesuai Dapur",
         "blockout": "N/A"
       }
+    },
+    {
+      "id": "prod_1782434661900",
+      "name": "test",
+      "category": "vitrase",
+      "description": "test",
+      "image": "https://images.unsplash.com/photo-1541123437800-1bb1317badc2?auto=format&fit=crop&q=80&w=600",
+      "pricePerMeter": 11,
+      "features": [
+        "Polyester Premium",
+        "Peredam Panas"
+      ],
+      "specs": {
+        "bahan": "Polyester High Quality",
+        "lebar": "280 cm",
+        "blockout": "90%"
+      }
     }
   ],
   "projects": [

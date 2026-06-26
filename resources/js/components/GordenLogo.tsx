@@ -39,7 +39,7 @@ export default function GordenLogo({ className = '', size = 80 }: GordenLogoProp
           src={logoUrl}
           alt="Gorden Yulie Batu"
           className="w-full h-full object-cover p-1"
-          onError={() => setImgFailed(true)}
+          onError={() => setTimeout(() => setImgFailed(true), 0)}
           referrerPolicy="no-referrer"
         />
       ) : (

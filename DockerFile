@@ -1,46 +1,47 @@
-# Stage 1: Build Frontend Assets
-FROM node:20-alpine AS asset-builder
+# --- Stage 1: Build Frontend Assets (React + Vite + Tailwind v4) ---
+FROM node:20-alpine AS node-builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 COPY . .
-RUN npm run laravel-build
+RUN npm run build
 
-# Stage 2: Production PHP Application
+# --- Stage 2: Install PHP Composer Dependencies ---
+FROM composer:2.6 AS composer-builder
+WORKDIR /app
+COPY composer*.json ./
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+COPY . .
+RUN composer dump-autoload --no-dev --optimize
+
+# --- Stage 3: Runtime Container (PHP-FPM 8.2 + Nginx di Alpine Linux) ---
 FROM php:8.2-fpm-alpine
-WORKDIR /var/www/html
-
-# Install System Dependencies & PHP Extensions
 RUN apk add --no-cache \
     nginx \
     supervisor \
-    curl \
+    mysql-client \
     libpng-dev \
-    libxml2-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libzip-dev \
     zip \
     unzip \
-    git \
-    oniguruma-dev \
-    postgresql-dev
+    bash
 
-RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd pdo_mysql zip opcache
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Salin konfigurasi server web & supervisord (Gunakan 'docker/' tanpa titik)
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/supervisord.conf /etc/supervisord.conf
 
-# Copy Project Files
-COPY . .
-COPY --from=asset-builder /app/public/build ./public/build
-
-# Install PHP Dependencies
-RUN composer install --no-dev --optimize-autoloader
-
-# Set Permissions
+WORKDIR /var/www/html
+COPY --from=composer-builder /app /var/www/html
+COPY --from=node-builder /app/public/build /var/www/html/public/build
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Setup Nginx Configuration
-COPY .docker/nginx.conf /etc/nginx/nginx.conf
-COPY .docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 80
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

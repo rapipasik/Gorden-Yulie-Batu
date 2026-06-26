@@ -1,0 +1,161 @@
+-- ==========================================
+-- SCRIPT SQL: DATABASE GORDEN YULIE BATU (MySQL 8.0+)
+-- Penggunaan: Salin teks ini dan jalankan (Execute SQL) di Navicat Anda.
+-- ==========================================
+
+-- Pastikan database dibuat dan digunakan
+CREATE DATABASE IF NOT EXISTS `gorden_yulie_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `gorden_yulie_db`;
+
+-- Set pengaturan penanganan timezone & foreign key
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- -----------------------------------------------------------------------------
+-- 1. TABEL: users (Admin & Pengguna)
+-- -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_email_unique` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- 2. TABEL: password_reset_tokens
+-- -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS `password_reset_tokens`;
+CREATE TABLE `password_reset_tokens` (
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- 3. TABEL: sessions
+-- -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS `sessions`;
+CREATE TABLE `sessions` (
+  `id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_agent` text COLLATE utf8mb4_unicode_ci,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_activity` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `sessions_user_id_index` (`user_id`),
+  KEY `sessions_last_activity_index` (`last_activity`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- 4. TABEL: products (Katalog Produk Gorden & Interior)
+-- -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS `products`;
+CREATE TABLE `products` (
+  `id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `category` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `image` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pricePerMeter` int NOT NULL DEFAULT '0',
+  `features` text COLLATE utf8mb4_unicode_ci COMMENT 'Menyimpan array JSON fitur produk',
+  `specs_bahan` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `specs_lebar` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `specs_blockout` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- 5. TABEL: projects (Portofolio Project Selesai)
+-- -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS `projects`;
+CREATE TABLE `projects` (
+  `id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `category` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `location` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `year` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `image` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- 6. TABEL: testimonials (Ulasan Customer)
+-- -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS `testimonials`;
+CREATE TABLE `testimonials` (
+  `id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `role` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Pelanggan Setia Gorden Yulie',
+  `rating` int NOT NULL DEFAULT '5',
+  `comment` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `date` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `avatar` longtext COLLATE utf8mb4_unicode_ci COMMENT 'Base64 atau link gambar avatar pembeli',
+  `image` longtext COLLATE utf8mb4_unicode_ci COMMENT 'Base64 atau link gambar pengerjaan gorden',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- =============================================================================
+-- DATA SEEDERS: INPUT DATA DEFAULT DAN DEFAULT ADMIN WEBSITE
+-- =============================================================================
+
+-- A. USER ADMIN DEFAULT
+-- Akun Admin Default: admin@yuliegordenbatu.com / password
+-- Laravel menggunakan hashing bcrypt. String '$2y$12$K1RbeXvO6FkEovYv59eQDuuN/gUjYw86Y2vN6pGj8R95p.0G1I60K' adalah hash dari 'password'.
+INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) 
+VALUES (1, 'Yulie Gorden Admin', 'admin@yuliegordenbatu.com', NULL, '$2y$12$K1RbeXvO6FkEovYv59eQDuuN/gUjYw86Y2vN6pGj8R95p.0G1I60K', NULL, NOW(), NOW())
+ON DUPLICATE KEY UPDATE `id`=`id`;
+
+
+-- B. PRODUK DEFAULT (KATALOG)
+INSERT INTO `products` (`id`, `name`, `category`, `description`, `image`, `pricePerMeter`, `features`, `specs_bahan`, `specs_lebar`, `specs_blockout`, `created_at`, `updated_at`) VALUES
+('g1', 'Gorden Blackout Premium Velvet', 'gorden', 'Gorden blackout super premium berbahan heavy velvet lembut yang memblokir sinar matahari hingga 100%. Sempurna untuk menjaga privasi, meredam suara luar, serta menambah kemewahan ruangan utama Anda.', 'https://images.unsplash.com/photo-1541123437800-1bb1317badc2?auto=format&fit=crop&q=80&w=600', 180000, '[\"100% Blokir Cahaya Matahari\", \"Tekstur Velvet Halus\", \"Membantu Meredam Kebisingan\"]', 'Polyester Velvet Heavyweight', '140 cm / Custom', '100% Blackout', NOW(), NOW()),
+
+('v1', 'Vitrase Putih Polos Organza Luxe', 'vitrase', 'Lapis dalam gorden (vitrase) premium berwarna putih bersih dari bahan sutra organza sintetis tebal namun transparan elegan. Memberikan pencahayaan alami yang lembut tanpa menyilaukan mata.', 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&q=80&w=600', 85000, '[\"Efek Transparan Elegan\", \"Bahan Organza Premium Berkilau\", \"Serat Padat Kuat\"]', 'Organza Silk Blend', '280 cm', 'Semi-transparent', NOW(), NOW()),
+
+('r1', 'Roller Blind Sunscreen UV Filter', 'roller_blind', 'Roller blind fungsional dengan keunggulan mereduksi panas ruangan akibat sinar UV matahari tanpa menutup pandangan sama sekali. Sangat digemari untuk area ruang kerja, perkantoran, maupun dapur modern.', 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=600', 145000, '[\"Menolak Panas UV Efektif\", \"Konsep Minimalis Praktis\", \"Mekanisme Tarik Halus\"]', 'Fiberglass & PVC Sunscreen', 'Custom Sesuai Ukuran Jendela', 'Translucent', NOW(), NOW()),
+
+('w1', 'Wallpaper Dinding Floral Classic', 'wallpaper', 'Wallpaper dinding eksklusif bermotif bunga emboss khas Eropa klasik. Berbahan Vinyl berkualitas tinggi yang tahan lembab dan mudah dibersihkan.', 'https://images.unsplash.com/photo-1615874959474-d609969a20ed?auto=format&fit=crop&q=80&w=600', 75000, '[\"Motif Timbul Mewah\", \"Lapisan Vinyl Tebal\", \"Anti Lembab & Awet\"]', 'Premium Vinyl Cover', '53 cm x 10 m', 'N/A', NOW(), NOW()),
+
+('k1', 'Kitchen Set HPL Minimalis Modern', 'kitchen_set', 'Kitchen set kustom berstruktur plywood lapis HPL antikarat dan anti rayap. Dilengkapi laci berengsel soft-close senyap otomatis dan layout yang memaksimalkan efisiensi penyimpanan.', 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=600', 1850000, '[\"Desain Custom Ergonomis\", \"HPL Pelapis Kuat\", \"Engsel Soft-Close Senyap\"]', 'Plywood & HPL Finish', 'Kustom Sesuai Dapur', 'N/A', NOW(), NOW())
+ON DUPLICATE KEY UPDATE `id`=`id`;
+
+
+-- C. PORTOFOLIO PROJECT DEFAULT
+INSERT INTO `projects` (`id`, `title`, `category`, `location`, `year`, `description`, `image`, `created_at`, `updated_at`) VALUES
+('proj1', 'Master Bedroom Villa Kusuma Pinus', 'villa', 'Batu, Jawa Timur', '2026', 'Instalasi gorden blackout double-rail model lipat cubicle dengan vitrase organza. Menghadirkan kenyamanan istirahat maksimal dengan kontrol cahaya matahari 100% blackout.', '/assets/images/curtains_minimal_interior_1782007633904.jpg', NOW(), NOW()),
+
+('proj2', 'Living Room Residence Ijen', 'residensial', 'Malang, Jawa Timur', '2026', 'Pengerjaan gorden minimalis bermodel ring eyelet berbahan semi-blackout linen warna abu-abu hangat, disesuaikan dengan arsitektur rumah modern minimalis industrial.', 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=600', NOW(), NOW()),
+
+('proj3', 'Lobby Area Boutique Hotel Batu', 'komersial', 'Batu, Jawa Timur', '2025', 'Pemasangan gorden ceiling mount setinggi 5 meter berbahan Jacquard Royal damask motif timbul bernuansa emas tembaga untuk menambah estetika mewah, formal dan anggun di lobi utama.', 'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=600', NOW(), NOW())
+ON DUPLICATE KEY UPDATE `id`=`id`;
+
+
+-- D. TESTIMONI DEFAULT (ULASAN)
+INSERT INTO `testimonials` (`id`, `name`, `role`, `rating`, `comment`, `date`, `avatar`, `image`, `created_at`, `updated_at`) VALUES
+('t1', 'Bu Shinta Rosalia', 'Pemilik Villa – Kusuma Pinus', 5, 'Sangat puas dengan hasil pengerjaan Gorden Yulie! Bahannya sangat tebal, pengerjaan jahitannya rapi sekali, dan timnya luar biasa sopan saat instalasi ke Batu. Rekomendasi bintang 5!', '10 Mei 2026', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120', 'https://images.unsplash.com/photo-1541123437800-1bb1317badc2?auto=format&fit=crop&q=80&w=600', NOW(), NOW()),
+
+('t2', 'Pak Rudy Hermawan', 'Pribadi – Perumahan Ijen, Malang', 5, 'Order gorden minimalis semi-blackout lari 12 meter untuk lantai dua rumah. Selesai tepat waktu. Harga jujur sesuai kalkulator estimasi dan diukur real gratis ke rumah. Sangat profesional.', '28 April 2026', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120', 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=600', NOW(), NOW()),
+
+('t3', 'Bu Dian Sasmita', 'Manager Operasional – Boutique Hotel', 5, 'Sudah langganan lebih dari 5 tahun dengan Gorden Yulie Batu untuk kebutuhan gorden hotel kami. Jahitan presisi, sangat fungsional memblokir cahaya, dan tidak gampang lusuh saat dicuci.', '15 Maret 2026', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120', 'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=600', NOW(), NOW())
+ON DUPLICATE KEY UPDATE `id`=`id`;
+
+SET FOREIGN_KEY_CHECKS = 1;
+-- ==========================================
+-- SELESAI
+-- ==========================================
