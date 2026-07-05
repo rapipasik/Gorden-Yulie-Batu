@@ -4,6 +4,16 @@ Website resmi dan platform manajemen katalog interaktif untuk **Gorden Yulie Bat
 
 ---
 
+## 🌐 Tautan Desain & Deployment (Produksi)
+
+Aplikasi ini telah dideploy secara langsung dan dapat diakses publik melalui tautan berikut:
+
+- **Link Live Website**: [gordenyuliebatu.com](https://gordenyuliebatu.com)
+- **Desain UI/UX (Figma)**: [Figma Design - Sistem Informasi Gorden Yulie Batu](https://www.figma.com/design/5JHNM4ht7rJiq6vugcwNsA/Sistem-Informasi---Gorden-Yulie-Batu?node-id=0-1&t=xxQmFCCwQILbT3Ld-1)
+- **Infrastruktur Hosting**: Dideploy menggunakan **VPS (Virtual Private Server) yang dikelola secara mandiri (*self-managed*)** untuk memastikan performa yang cepat, keamanan data penuh, serta kontrol server secara menyeluruh.
+
+---
+
 ## 🌟 Fitur Utama Aplikasi
 
 1. **Beranda Dinamis**: Tampilan interaktif dengan animasi halus, menonjolkan nilai keunggulan produk dan nilai estetika tinggi untuk dekorasi hunian modern.
@@ -57,6 +67,92 @@ Untuk melakukan kompilasi backend Express serta aset statis React untuk siap dij
 npm run build
 npm start
 ```
+
+---
+
+## 🐘 Petunjuk Integrasi & Migrasi ke Laravel (PHP)
+
+Proyek ini telah dilengkapi dengan struktur backend Laravel lengkap. Ikuti petunjuk berikut untuk mengintegrasikan frontend React + Vite + Tailwind v4 ke dalam sistem Laravel Anda.
+
+### 1. Persiapan Struktur Laravel
+Pastikan struktur folder berikut berada pada posisi yang tepat di root direktori Laravel Anda:
+- **Aset & Komponen**: `resources/js/` (berisi komponen React, `App.tsx`, `main.tsx`, dan modul styling)
+- **Konfigurasi Vite**: `vite.config.ts` (menggunakan `@tailwindcss/vite` & `laravel-vite-plugin`)
+- **Database Migrations**: `database/migrations/` (berisi skema tabel untuk produk, proyek, dan testimoni)
+- **Laravel Models**: `app/Models/` (berisi model `Product.php`, `Project.php`, dan `Testimonial.php`)
+- **Laravel Controllers**: `app/Http/Controllers/` (berisi pengolahan API)
+- **Laravel Routes**: `routes/web.php` (berisi definisi rute API dan fallback rute SPA)
+
+### 2. Jalankan Migrasi & Seeder Database
+Konfigurasikan file `.env` Laravel Anda agar terhubung dengan database SQL pilihan Anda (MySQL, PostgreSQL, atau SQLite). Kemudian, jalankan perintah migrasi dan pengisian data bawaan (*seeding*):
+
+```bash
+# Menjalankan migrasi seluruh tabel (User, Products, Projects, Testimonials)
+php artisan migrate
+
+# Mengisi data awal/seeder bawaan agar tampilan katalog & testimoni tidak kosong
+php artisan db:seed
+```
+
+### 3. Struktur Tabel Database SQL
+Sistem migrasi Laravel akan membuat tabel-tabel berikut:
+
+#### Tabel `products` (Katalog Produk)
+| Kolom | Tipe Data | Deskripsi |
+| :--- | :--- | :--- |
+| `id` | `VARCHAR` (Primary Key) | ID kustom unik (contoh: 'g1', 'v1') |
+| `name` | `VARCHAR` | Nama produk gorden/interior |
+| `category` | `VARCHAR` | Kategori (`gorden`, `vitrase`, `roller_blind`, `wallpaper`, `kitchen_set`) |
+| `description` | `TEXT` | Deskripsi lengkap kelebihan produk |
+| `image` | `VARCHAR` | URL atau path gambar produk |
+| `price_per_meter` | `INTEGER` | Harga produk per meter atau unit |
+| `features` | `JSON` | Daftar keunggulan produk |
+| `specs` | `JSON` | Spesifikasi detail bahan dan ukuran |
+
+#### Tabel `projects` (Portofolio Proyek)
+| Kolom | Tipe Data | Deskripsi |
+| :--- | :--- | :--- |
+| `id` | `VARCHAR` (Primary Key) | ID unik portofolio |
+| `title` | `VARCHAR` | Nama proyek pengerjaan |
+| `category` | `VARCHAR` | Kategori lokasi (`villa`, `residensial`, `hotel`) |
+| `location` | `VARCHAR` | Alamat lokasi (contoh: "Batu, Jawa Timur") |
+| `image` | `VARCHAR` | Path atau URL dokumentasi hasil pasang |
+| `year` | `VARCHAR` | Tahun pengerjaan |
+| `description` | `TEXT` | Deskripsi teknis jenis gorden yang dipasang |
+
+#### Tabel `testimonials` (Ulasan Pelanggan)
+| Kolom | Tipe Data | Deskripsi |
+| :--- | :--- | :--- |
+| `id` | `VARCHAR` (Primary Key) | ID unik testimoni |
+| `name` | `VARCHAR` | Nama pelanggan/instansi |
+| `role` | `VARCHAR` | Pekerjaan atau tipe properti |
+| `rating` | `INTEGER` | Skor rating bintang (1-5) |
+| `comment` | `TEXT` | Ulasan pengalaman pemasangan |
+| `date` | `VARCHAR` | Tanggal testimoni |
+| `avatar` | `LONGTEXT` | Foto profil / avatar pelanggan (Base64 / URL) |
+| `image` | `LONGTEXT` | Foto hasil gorden di rumah pelanggan (Base64 / URL) |
+
+### 4. Menjalankan Server Pengembangan Laravel + Vite
+Gunakan dua terminal terpisah untuk menjalankan server Laravel dan kompilasi aset real-time Vite:
+
+**Terminal 1 (Laravel Server):**
+```bash
+php artisan serve
+```
+
+**Terminal 2 (Vite Compiler):**
+```bash
+npm run laravel-dev
+```
+
+### 5. Kompilasi Aset Produksi Laravel
+Jika aplikasi sudah siap dipublikasikan ke hosting atau server VPS Anda:
+```bash
+npm run laravel-build
+```
+Aset terkompilasi akan otomatis disimpan di folder `public/build/` dan siap disajikan secara optimal oleh server produksi Laravel.
+
+---
 
 ## 🎨 Konvensi Desain & Standar Kode
 - **Visual Konsisten**: Menggunakan skema warna elegan (warm gray, charcoal, dan aksen keemasan/gold) untuk memberikan kesan mewah sesuai citra produk dekorasi rumah kelas atas.

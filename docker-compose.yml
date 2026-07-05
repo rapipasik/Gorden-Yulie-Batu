@@ -1,14 +1,16 @@
 version: '3.8'
 
 services:
+  # --- Service 1: Aplikasi Web Laravel + React (Gorden Yulie Batu) ---
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    image: rapipasik/gorden-yulie-batu:latest
+    image: gorden-yulie-batu:latest
     container_name: gorden_yulie_app
     restart: always
     ports:
+      # Port luar : Port dalam container
       - "8000:80"
     environment:
       APP_NAME: "Gorden Yulie Batu"
@@ -16,6 +18,7 @@ services:
       APP_DEBUG: "false"
       APP_URL: http://localhost:8000
       
+      # Pengaturan Koneksi Database (Terhubung langsung ke service 'db' di bawah)
       DB_CONNECTION: mysql
       DB_HOST: db
       DB_PORT: 3306
@@ -23,10 +26,12 @@ services:
       DB_USERNAME: yulie_user
       DB_PASSWORD: yulie_secure_password
     volumes:
+      # Volume untuk mempertahankan unggahan file (upload gorden, logo, dll) agar tidak hilang saat redeploy
       - app-storage:/var/www/html/storage/app
     depends_on:
       - db
 
+  # --- Service 2: Database MySQL ---
   db:
     image: mysql:8.0
     container_name: gorden_yulie_db
@@ -37,11 +42,14 @@ services:
       MYSQL_PASSWORD: yulie_secure_password
       MYSQL_ROOT_PASSWORD: yulie_root_secure_password
     ports:
+      # Port luar database (opsional jika ingin diakses dari luar VPS via DB client seperti DBeaver)
       - "3306:3306"
     volumes:
+      # Volume wajib untuk mempertahankan seluruh data produk, testimoni, dll di dalam database MySQL
       - mysql-data:/var/lib/mysql
     command: --default-authentication-plugin=mysql_native_password
 
+# --- Definisi Volume Persistent agar Data Aman & Awet ---
 volumes:
   mysql-data:
     driver: local
